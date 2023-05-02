@@ -1,6 +1,6 @@
 apiVersion: v2
-name: app1
-description: app1 app
+name: app2
+description: app2 app
 type: application
 version: 0.1.0
 appVersion: 1.0.0
