@@ -1,0 +1,22 @@
+{{- define "library-chart.service" -}}
+{{- if  .Values.enabled }}
+{{- if or .Values.service .Values.expose }}
+apiVersion: v1
+kind: Service
+metadata:
+  {{- include "library-chart.serviceName" . | indent 2 }}
+  labels:
+    {{- include "library-chart.labels" . | nindent 4 }}
+spec:
+{{- include "library-chart.serviceType" . | indent 2 }} 
+{{- include "library-chart.servicePorts" . | nindent 2 }} 
+  {{- if and .Values.service .Values.service.extraPorts }}
+    {{- toYaml .Values.service.extraPorts | nindent 4 }}
+    {{- end  }}
+  selector:
+    {{- include "library-chart.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+

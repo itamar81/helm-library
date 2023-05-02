@@ -1,0 +1,126 @@
+{{- define "library-chart.deployment" -}}
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "library-chart.fullname" . }}
+  labels:
+    {{- include "library-chart.labels" . | nindent 4 }}
+spec:
+  replicas: {{ default 1 .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "library-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- if or .Values.podAnnotations .Values.prometheusScrape | default true }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        {{- if .Values.podAnnotations }}
+          {{- tpl (toYaml .Values.podAnnotations) . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      labels:
+        {{- include "library-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- else if .Values.global }}
+      {{- if .Values.global.imagePullSecrets }}
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      serviceAccountName: {{ include "library-chart.serviceAccountName" . }}
+      {{- if .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- end }}
+      {{- if .Values.restartPolicy }}
+      restartPolicy: {{ .Values.restartPolicy }}
+      {{- else if .Values.global }}
+      {{- if .Values.global.restartPolicy }}
+      restartPolicy: {{ .Values.global.restartPolicy }}
+      {{- end }}
+      {{- end }}
+       {{- if  .Values.initContainers }}
+      initContainers:
+        {{- toYaml .Values.initContainers  | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- if .Values.securityContext }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- end }}
+          image: {{ include "library-chart.containerImage" . }}
+          imagePullPolicy: {{ include "library-chart.containerImagePullPolicy" . }}
+          env:
+            {{- include "library-chart.containerEnvVars" . | indent 12 }}
+          {{- if .Values.ports }}
+          ports:
+            {{- toYaml .Values.ports | nindent 12 }}
+          {{- end }}
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.configMap .Values.secret}}
+          volumeMounts:
+          {{- if  .Values.configMap}}
+          - name: {{ include "library-chart.fullname" . }}-cm
+            mountPath: {{ default "/config" .Values.configMap.mount }}
+          {{- end }}
+           {{- if  .Values.secret}}
+          - name: {{ include "library-chart.fullname" . }}-secret
+            mountPath: {{ default "/secret" .Values.secret.mount }}
+          {{- end }}
+        {{- if  .Values.extraContainers }}
+        {{- toYaml .Values.extraContainers  | nindent 8 }}
+        {{- end }}
+      volumes:
+      {{- if  .Values.configMap}}
+      - name: {{ include "library-chart.fullname" . }}-cm
+        configMap:
+          name: {{ include "library-chart.fullname" . }}-cm  
+      {{- end }}
+      {{- if  .Values.secret}}
+      - name: {{ include "library-chart.fullname" . }}-secret
+        secret:
+          secretName: {{ include "library-chart.fullname" . }}-secret
+      {{- end }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,58 @@
+{{- define "library-chart.ingress" -}}
+{{- if .Values.ingress  -}}
+{{- $fullName := include "library-chart.fullname" . -}}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "library-chart.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- range .Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    - host: {{ default $fullName .Values.ingress.host }}
+      http:
+        paths:
+          - path: {{ default "/"  .Values.ingress.path }}
+            pathType: {{ default "Prefix" .Values.ingress.pathType }}
+            backend:
+              service:
+                name: {{ default $fullName  .Values.ingress.service }}
+                port:
+                {{- if .Values.service }}
+                  number: {{ default 80  .Values.service.port }}
+                {{- else }}
+                  number: {{ default 80 .Values.ingress.port }}
+                {{- end }}
+    {{- if .Values.ingress.extraHosts }}
+    {{- range .Values.ingress.extraHosts }}
+    - host: {{ tpl .host $ | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ .serviceName | default $fullName }}
+                port:
+                  number: {{ .servicePort | default .Values.service.port }}
+          {{- end }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

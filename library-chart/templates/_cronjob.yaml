@@ -1,0 +1,145 @@
+{{- define "library-chart.cronJob" -}}
+{{- if .Values.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "library-chart.fullname" . }}
+  labels:
+    {{- include "library-chart.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.cronJob }}
+  {{- if .Values.cronJob.concurrencyPolicy }}
+  concurrencyPolicy: {{ .Values.cronJob.concurrencyPolicy }}
+  {{- end }}
+  {{- if .Values.cronJob.failedJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.cronJob.failedJobsHistoryLimit }}
+  {{- end }}
+  {{- if .Values.cronJob.startingDeadlineSeconds }}
+  startingDeadlineSeconds: {{ .Values.cronJob.startingDeadlineSeconds }}
+  {{- end }}
+  {{- if .Values.cronJob.successfulJobsHistoryLimit }}
+  successfulJobsHistoryLimit: {{ .Values.cronJob.successfulJobsHistoryLimit }}
+  {{- end }}
+  {{- if .Values.cronJob.suspend }}
+  suspend: {{ .Values.cronJob.suspend }}
+  {{- end }}
+  {{- end }}
+  schedule: {{ .Values.schedule | quote}}
+  jobTemplate:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "library-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.job }}
+      {{- if .Values.job.activeDeadlineSeconds }}
+      activeDeadlineSeconds: {{ .Values.job.activeDeadlineSeconds }}
+      {{- end }}
+      {{- if .Values.job.backoffLimit }}
+      backoffLimit: {{ .Values.job.backoffLimit }}
+      {{- end }}
+      {{- if .Values.job.completions }}
+      completions: {{ .Values.job.completions }}
+      {{- end }}
+      {{- if .Values.job.parallelism }}
+      parallelism: {{ .Values.job.parallelism }}
+      {{- end }}
+      {{- if .Values.job.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ .Values.job.ttlSecondsAfterFinished }}
+      {{- end }}
+      {{- end }}
+      template:
+        spec:
+          {{- if .Values.imagePullSecrets }}
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- else if .Values.global }}
+          {{- if .Values.global.imagePullSecrets }}
+          {{- with .Values.global.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+          serviceAccountName: {{ include "library-chart.serviceAccountName" . }}
+          {{- if .Values.podSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          {{- end }}
+          {{- if .Values.restartPolicy }}
+          restartPolicy: {{ .Values.restartPolicy }}
+          {{- else if .Values.global }}
+          {{- if .Values.global.restartPolicy }}
+          restartPolicy: {{ .Values.global.restartPolicy }}
+          {{- end }}
+          {{- end }}
+          containers:
+            - name: {{ .Chart.Name }}
+              {{- if .Values.securityContext }}
+              securityContext:
+                {{- toYaml .Values.securityContext | nindent 16 }}
+              {{- end }}
+              image: {{ include "library-chart.containerImage" . }}
+              imagePullPolicy: {{ include "library-chart.containerImagePullPolicy" . }}
+              {{- if .Values.args }}
+              args:
+                {{- range .Values.args }}
+                - {{ . }}
+                {{- end }}
+              {{- end }}
+              env:
+                {{- include "library-chart.containerEnvVars" . | indent 16 }}
+              {{- if .Values.ports }}
+              ports:
+                {{- toYaml .Values.ports | nindent 16 }}
+              {{- end }}
+              {{- if .Values.livenessProbe }}
+              livenessProbe:
+                {{- toYaml .Values.livenessProbe | nindent 16 }}
+              {{- end }}
+              {{- if .Values.readinessProbe }}
+              readinessProbe:
+                {{- toYaml .Values.readinessProbe | nindent 16 }}
+              {{- end }}
+              {{- if .Values.resources }}
+              resources:
+                {{- toYaml .Values.resources | nindent 16 }}
+              {{- end }}
+              {{- if .Values.secretProviderClassAws.enabled }}
+              volumeMounts:
+                - name: secret-vol-{{.Chart.Name }}
+                  mountPath: /mnt/secrets-store
+                  readOnly: true
+          volumes:
+            - name: secret-vol-{{.Chart.Name }}
+              csi:
+                driver: secrets-store.csi.k8s.io
+                readOnly: true
+                volumeAttributes:
+                  secretProviderClass: {{ include "library-chart.fullname" . }}
+          {{- end }}
+          {{- if .Values.nodeSelector }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.affinity }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.tolerations }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+{{- end }}
+{{- end }}

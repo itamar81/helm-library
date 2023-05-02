@@ -1,0 +1,32 @@
+{{- define "library-chart.envConfigMap" -}}
+{{- if and .Values.enabled .Values.env }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "library-chart.fullname" . }}
+data:
+  {{- if .Values.global }}
+  {{- if .Values.global.env }}
+  {{- range $key, $value := .Values.global.env.data }}
+  {{ $key }}: {{ tpl $value $ | quote }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.env }}
+  {{- range $key, $value := .Values.env.data }}
+  {{ $key }}: {{ tpl $value $ | quote }}
+  {{- end }}
+  {{- end }}
+{{- else if and .Values.enabled .Values.global }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "library-chart.fullname" . }}
+data:
+  {{- if .Values.global.env }}
+  {{- range $key, $value := .Values.global.env.data }}
+  {{ $key }}: {{ tpl $value $ | quote }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+{{- end -}}

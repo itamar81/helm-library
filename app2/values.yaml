@@ -1,0 +1,9 @@
+enabled: true
+
+configMap:
+  data: -|
+    config
+    das
+    sdsd
+    ddd
+    
