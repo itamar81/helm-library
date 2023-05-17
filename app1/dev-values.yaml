@@ -51,9 +51,9 @@ preStop:
   # - name: ngnix-test3
     # port: 888
   
-# ingress:
-#   port: 778
-#   path: /api/
+ingress:
+  port: 778
+  path: /api/
 
 # job:
 #   image:
