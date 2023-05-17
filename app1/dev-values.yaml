@@ -21,8 +21,8 @@ image:
 replicaCount: 2
 extraLabels:
   app: app1
-expose:
-  port: 80
+# expose:
+#   port: 80
    
 postStart: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
 preStop:
@@ -42,8 +42,8 @@ preStop:
 #   env:
 #   - name: "extra"
 #     value: "extra-val1"
-
-# service:
+service:
+  type: LoadBalancer
   # portName: api
   # port: 555
   # protocol: UDP
@@ -51,9 +51,9 @@ preStop:
   # - name: ngnix-test3
     # port: 888
   
-ingress:
-  port: 80
-  path: /
+# ingress:
+#   port: 80
+#   path: /
 
 # job:
 #   image:
