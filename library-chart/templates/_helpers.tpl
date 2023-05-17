@@ -185,11 +185,9 @@ Global environment variables
 {{- define "library-chart.globalEnvVars" }}
 {{- if .Values.global }}
 {{- if .Values.global.env }}
-{{- if .Values.global.env.data }}
-{{- range $key, $value := .Values.global.env.data }}
+{{- range $key, $value := .Values.global.env }}
 - name: {{ $key }}
   value: {{ tpl $value $ | quote }}
-{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

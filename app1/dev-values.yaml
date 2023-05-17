@@ -9,7 +9,6 @@ global:
     repository: nginx
     # tag: ""
   env:
-    data:
       name: global-env
       value: global-val 
 
