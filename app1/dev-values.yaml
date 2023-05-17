@@ -6,6 +6,7 @@
 global:
   image:
     registry: docker.com
+    repository: nginx
     # tag: ""
   env:
     data:
