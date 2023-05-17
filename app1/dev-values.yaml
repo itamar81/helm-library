@@ -13,9 +13,9 @@ global:
       name: global-env
       value: global-val 
 
-enabled: false
-daemonset: 
-  enabled: true
+enabled: true
+# daemonset: 
+#   enabled: true
 image:  
   repository: nginx
 replicaCount: 2
