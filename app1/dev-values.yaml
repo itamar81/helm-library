@@ -26,9 +26,10 @@ expose:
   protocol: UDP
 postStart: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
 preStop:
-- "a"
-- "b"
-- "c"
+- "echo"
+- "how are you"
+- ">"
+- "./pppp"
 # initContainers:
 # - image: busybox
 #   name: init
