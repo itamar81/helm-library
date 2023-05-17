@@ -52,8 +52,8 @@ preStop:
     # port: 888
   
 ingress:
-  port: 778
-  path: /api/
+  port: 80
+  path: /
 
 # job:
 #   image:
