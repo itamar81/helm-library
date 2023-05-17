@@ -3,23 +3,31 @@
 # Declare variables to be passed into your templates.
 
 
-# global:
-#   image:
-#     registry: docker.com
+global:
+  image:
+    registry: docker.com
     # tag: ""
-  # env:
-  #   data:
-  #     name: global-env
-  #     value: global-val 
+  env:
+    data:
+      name: global-env
+      value: global-val 
 
-enabled: true
-replicaCount: 5
+enabled: false
+daemonset: 
+  enabled: true
+image:  
+  repository: nginx
+replicaCount: 2
 extraLabels:
   app: app1
 expose:
   port: 79
   protocol: UDP
-  
+postStart: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+preStop:
+- "a"
+- "b"
+- "c"
 # initContainers:
 # - image: busybox
 #   name: init

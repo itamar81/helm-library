@@ -1,5 +1,5 @@
 {{- define "library-chart.service" -}}
-{{- if  .Values.enabled }}
+{{- if or  .Values.enabled  .Values.daemonset }}
 {{- if or .Values.service .Values.expose }}
 apiVersion: v1
 kind: Service
@@ -18,5 +18,3 @@ spec:
 {{- end }}
 {{- end }}
 {{- end }}
-
-

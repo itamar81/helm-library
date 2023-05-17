@@ -1,13 +1,13 @@
-{{- define "library-chart.deployment" -}}
-{{- if .Values.enabled }}
+{{- define "library-chart.daemonset" -}}
+{{- if and .Values.daemonset (not .Values.enabled)  }}
 apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps/v1
+kind: DaemonSet
 metadata:
   name: {{ include "library-chart.fullname" . }}
   labels:
     {{- include "library-chart.labels" . | nindent 4 }}
 spec:
-  replicas: {{ default 1 .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "library-chart.selectorLabels" . | nindent 6 }}
@@ -71,7 +71,6 @@ spec:
                 command:
             {{- range .Values.preStop }}
                 - {{ . | title | quote }}
-
           {{- end }}
           {{- end }}
           {{- end }}
