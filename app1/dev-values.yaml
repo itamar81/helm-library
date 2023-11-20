@@ -74,18 +74,18 @@ service:
 #       line4
 #       line5
 
-# secret:
-#   mount: /mount/path
-#   data:
-#     ca.crt: |
-#       dadsadsa
-#       sdadasdas
-#       dasdadsads
-#       dasdddd
-#     tls.crt: |
-#       abcde
-#       fghij
-#       klmno
-#       pqrst
-#       uvwxy
+secret:
+  mount: /mount/path
+  data:
+    ca.crt: |
+      dadsadsa
+      sdadasdas
+      dasdadsads
+      dasdddd
+    tls.crt: |
+      abcde
+      fghij
+      klmno
+      pqrst
+      uvwxy
     
